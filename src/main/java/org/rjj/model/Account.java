@@ -4,16 +4,15 @@ import com.ib.controller.ApiController;
 import com.ib.controller.Position;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalTime;
+import java.util.*;
 
 public abstract class Account {
 
     public BigDecimal totalCashValue;
     private ApiController.IAccountHandler accountHandler = new AccountHandler();
-    private Map<Integer, List<Position>> portfolio = new HashMap<>();
+    private Map<Integer, List<TimePosition>> portfolio = new HashMap<>();
+    private Calendar lastDateSignal = new GregorianCalendar();
 
     public abstract String getAccountType();
     public abstract String getAccountCode();
@@ -46,8 +45,13 @@ public abstract class Account {
         }
 
         @Override
-        public void accountTime(String s) {
+        public synchronized void accountTime(String s) {
+
             System.out.printf("accountTime - %s \n", s);
+            LocalTime localTime = LocalTime.parse(s);
+
+            lastDateSignal.set(Calendar.HOUR_OF_DAY, localTime.getHour());
+            lastDateSignal.set(Calendar.MINUTE, localTime.getMinute());
         }
 
         @Override
@@ -56,18 +60,20 @@ public abstract class Account {
         }
 
         @Override
-        public void updatePortfolio(Position position) {
+        public synchronized void updatePortfolio(Position position) {
+
+            final TimePosition timePosition = new TimePosition(lastDateSignal.getTime(), position);
 
             int contractId = position.contract().conid();
             if (portfolio.containsKey(contractId)) {
-                portfolio.get(contractId).add(position);
+                portfolio.get(contractId).add(timePosition);
             } else {
-                ArrayList<Position> positions = new ArrayList<>();
-                positions.add(position);
+                ArrayList<TimePosition> positions = new ArrayList<>();
+                positions.add(timePosition);
                 portfolio.put(contractId, positions);
             }
 
-            System.out.printf("Position - %s \n", position);
+            System.out.printf("Position - %s \n", timePosition);
         }
     }
 }
