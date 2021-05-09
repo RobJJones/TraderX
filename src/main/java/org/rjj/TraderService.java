@@ -32,6 +32,8 @@ public class TraderService {
         if (interactiveBrokerInterface.connect()) {
 
             interactiveBrokerInterface.updateAccount();
+            interactiveBrokerInterface.getContractDetails("LSEG");
+            //interactiveBrokerInterface.
 
             stockList.forEach((stock) -> {
                 System.out.println(stock);

@@ -1,11 +1,15 @@
 package org.rjj.ib;
 
+import com.ib.client.Contract;
+import com.ib.client.ContractDetails;
+import com.ib.client.Util;
 import com.ib.controller.TraderApiController;
 import org.rjj.model.Account;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Produces;
+import java.util.List;
 
 @ApplicationScoped
 @Produces
@@ -16,6 +20,7 @@ public class TraderInteractiveBrokerProxy implements TraderInteractiveBrokerInte
     private final Account account;
     TraderApiController apiController;
     ConnectionHandler connectionHandler = new ConnectionHandler();
+    OrderHandler orderHandler = new OrderHandler();
 
     @Inject
     public TraderInteractiveBrokerProxy(Account account) {
@@ -71,5 +76,27 @@ public class TraderInteractiveBrokerProxy implements TraderInteractiveBrokerInte
     @Override
     public void updateAccount() {
         apiController.reqAccountUpdates(true, account.getAccountCode(), account.getAccountHandler());
+    }
+
+    @Override
+    public ContractDetails getContractDetails(String symbol) {
+
+        Contract contractSearch = new Contract();
+        contractSearch.symbol(symbol);
+        contractSearch.secType("STK");
+        contractSearch.currency("GBP");
+        contractSearch.exchange("SMART");
+        List<ContractDetails> contractDetails = Util.lookupContract(apiController, contractSearch);
+
+        if (contractDetails.isEmpty()) {
+            return null;
+        }
+
+        return contractDetails.get(0);
+    }
+
+    public void placeOrder(String symbol) {
+
+        //apiController.placeOrModifyOrder(contract, order, orderHandler);
     }
 }
