@@ -13,4 +13,6 @@ public interface TraderInteractiveBrokerInterface {
     void updateAccount();
 
     ContractDetails getContractDetails(String symbol);
+
+    void placeBuyOrder(String symbol);
 }

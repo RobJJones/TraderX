@@ -15,12 +15,12 @@ public class OrderHandler implements ApiController.IOrderHandler {
     @Override
     public void orderStatus(OrderStatus status, double filled, double remaining, double avgFillPrice, int permId, int parentId, double lastFillPrice, int clientId, String whyHeld, double mktCapPrice) {
 
-        System.out.printf("OrderStatus %s, %d filled, %d remaining, %d avgFillPrice, %d permId, %d parentId, %d lastFillPrice, %d clientId, %s whyHeld, %d mktCapPrice",
+        System.out.printf("OrderStatus %s, %f filled, %f remaining, %f avgFillPrice, %d permId, %d parentId, %f lastFillPrice, %d clientId, %s whyHeld, %f mktCapPrice",
                  status,  filled,  remaining,  avgFillPrice,  permId,  parentId,  lastFillPrice,  clientId,  whyHeld,  mktCapPrice);
     }
 
     @Override
     public void handle(int errorCode, final String errorMsg) {
-        System.out.printf("Order error - %i %d %n", errorCode, errorMsg);
+        System.out.printf("Order error - %d %s %n", errorCode, errorMsg);
     }
 }

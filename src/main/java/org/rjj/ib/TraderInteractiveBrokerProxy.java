@@ -2,6 +2,7 @@ package org.rjj.ib;
 
 import com.ib.client.Contract;
 import com.ib.client.ContractDetails;
+import com.ib.client.Order;
 import com.ib.client.Util;
 import com.ib.controller.TraderApiController;
 import org.rjj.model.Account;
@@ -81,12 +82,7 @@ public class TraderInteractiveBrokerProxy implements TraderInteractiveBrokerInte
     @Override
     public ContractDetails getContractDetails(String symbol) {
 
-        Contract contractSearch = new Contract();
-        contractSearch.symbol(symbol);
-        contractSearch.secType("STK");
-        contractSearch.currency("GBP");
-        contractSearch.exchange("SMART");
-        List<ContractDetails> contractDetails = Util.lookupContract(apiController, contractSearch);
+        List<ContractDetails> contractDetails = Util.lookupContract(apiController, getUkContract(symbol));
 
         if (contractDetails.isEmpty()) {
             return null;
@@ -95,8 +91,25 @@ public class TraderInteractiveBrokerProxy implements TraderInteractiveBrokerInte
         return contractDetails.get(0);
     }
 
-    public void placeOrder(String symbol) {
+    @Override
+    public void placeBuyOrder(String symbol) {
 
-        //apiController.placeOrModifyOrder(contract, order, orderHandler);
+        Order order = new Order();
+        order.action("BUY");
+        order.orderType("MKT");
+        order.totalQuantity(1);
+
+        apiController.placeOrModifyOrder(getUkContract(symbol), order, orderHandler);
+    }
+
+    private static Contract getUkContract(String symbol) {
+
+        Contract contract = new Contract();
+        contract.symbol(symbol);
+        contract.secType("STK");
+        contract.currency("GBP");
+        contract.exchange("SMART");
+
+        return contract;
     }
 }

@@ -32,12 +32,10 @@ public class TraderService {
         if (interactiveBrokerInterface.connect()) {
 
             interactiveBrokerInterface.updateAccount();
-            interactiveBrokerInterface.getContractDetails("LSEG");
-            //interactiveBrokerInterface.
+            interactiveBrokerInterface.getContractDetails(stockList.get(0));
+            interactiveBrokerInterface.placeBuyOrder(stockList.get(0));
 
-            stockList.forEach((stock) -> {
-                System.out.println(stock);
-            });
+            stockList.forEach(System.out::println);
 
         } else {
 
