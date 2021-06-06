@@ -1,18 +1,10 @@
 package org.rjj.ib;
 
-import com.ib.client.ContractDetails;
+import org.rjj.model.Ticker;
+
+import java.util.List;
 
 public interface TraderInteractiveBrokerInterface {
 
-    boolean connect();
-
-    void disconnect();
-
-    boolean attemptConnection(int retryTimes);
-
-    void updateAccount();
-
-    ContractDetails getContractDetails(String symbol);
-
-    void placeBuyOrder(String symbol);
+    String buyStocks(List<Ticker> stockList, String currency) throws BrokerConnectionException;
 }

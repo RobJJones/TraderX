@@ -6,6 +6,7 @@ import com.ib.client.Order;
 import com.ib.client.Util;
 import com.ib.controller.TraderApiController;
 import org.rjj.model.Account;
+import org.rjj.model.Ticker;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -33,11 +34,11 @@ public class TraderInteractiveBrokerProxy implements TraderInteractiveBrokerInte
         this.account = account;
     }
 
-    public boolean connect() {
+    private boolean connect() {
         return this.connect(DEFAULT_CONNECTION_RETRY);
     }
 
-    public boolean connect(int retryTimes) {
+    private boolean connect(int retryTimes) {
         apiController.connect(account.getDomainName(), account.getPortNumber(), DEFAULT_CLIENT_NUMBER, null);
 
         for (int i=1; i < retryTimes+1 && !apiController.checkConnection(); i++) {
@@ -53,13 +54,11 @@ public class TraderInteractiveBrokerProxy implements TraderInteractiveBrokerInte
         return attemptConnection(5);
     }
 
-    @Override
-    public void disconnect() {
+    private void disconnect() {
         apiController.disconnect();
     }
 
-    @Override
-    public boolean attemptConnection(int retryTimes) {
+    private boolean attemptConnection(int retryTimes) {
 
         for (int i=1; i < retryTimes+1 && !apiController.checkConnection(); i++) {
 
@@ -74,15 +73,14 @@ public class TraderInteractiveBrokerProxy implements TraderInteractiveBrokerInte
         return apiController.checkConnection();
     }
 
-    @Override
-    public void updateAccount() {
+    private void updateAccount() {
         apiController.reqAccountUpdates(true, account.getAccountCode(), account.getAccountHandler());
     }
 
-    @Override
-    public ContractDetails getContractDetails(String symbol) {
+    private ContractDetails getContractDetails(String symbol, String currency) {
 
-        List<ContractDetails> contractDetails = Util.lookupContract(apiController, getUkContract(symbol));
+        List<ContractDetails> contractDetails = Util.lookupContract(apiController,
+                getContract(symbol, currency));
 
         if (contractDetails.isEmpty()) {
             return null;
@@ -91,25 +89,59 @@ public class TraderInteractiveBrokerProxy implements TraderInteractiveBrokerInte
         return contractDetails.get(0);
     }
 
-    @Override
-    public void placeBuyOrder(String symbol) {
+    private void placeBuyOrder(Ticker ticker, String currency) {
+
+        System.out.printf("Attempting to place buy order %s, %tz, %f",
+                ticker.getSymbol(), ticker.getDateTime(), ticker.getLastPrice());
 
         Order order = new Order();
         order.action("BUY");
         order.orderType("MKT");
         order.totalQuantity(1);
 
-        apiController.placeOrModifyOrder(getUkContract(symbol), order, orderHandler);
+        apiController.placeOrModifyOrder(getContract(ticker.getSymbol(), currency),
+                order, orderHandler);
+
+        System.out.printf("Attempting to place buy order %s, %tz, %f",
+                ticker.getSymbol(), ticker.getDateTime(), ticker.getLastPrice());
     }
 
-    private static Contract getUkContract(String symbol) {
+    private static Contract getContract(String symbol, String currency) {
 
         Contract contract = new Contract();
         contract.symbol(symbol);
         contract.secType("STK");
-        contract.currency("GBP");
+        contract.currency(currency);
         contract.exchange("SMART");
 
         return contract;
+    }
+
+    @Override
+    public String buyStocks(List<Ticker> stockList, String currency)
+            throws BrokerConnectionException {
+
+        System.out.println("List of stocks man!");
+
+        if (connect()) {
+
+            updateAccount();
+            stockList.forEach(ticker -> placeBuyOrder(ticker, currency));
+
+            //getContractDetails(stockList.get(0));
+            stockList.forEach(System.out::println);
+
+        } else {
+
+            throw new BrokerConnectionException();
+        }
+
+        //this.interactiveBrokerInterface.disconnect();
+
+        /*return Response.status(200)
+                .entity("Posted - "+stockList.toString())
+                .build();*/
+
+        return "Oh yeah";
     }
 }
