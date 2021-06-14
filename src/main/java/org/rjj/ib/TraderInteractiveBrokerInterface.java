@@ -6,5 +6,9 @@ import java.util.List;
 
 public interface TraderInteractiveBrokerInterface {
 
-    String buyStocks(List<Ticker> stockList, String currency) throws BrokerConnectionException;
+    void buyStocks(List<Ticker> stockList, String currency) throws BrokerConnectionException;
+
+    void buyStock(Ticker stock, String currency) throws BrokerConnectionException;
+
+    void retrieveOrders() throws BrokerConnectionException;
 }

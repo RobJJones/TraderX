@@ -1,10 +1,10 @@
-package org.rjj.ib;
+package org.rjj.ib.handler;
 
 import com.ib.client.OrderState;
 import com.ib.client.OrderStatus;
-import com.ib.controller.ApiController;
+import com.ib.controller.BaseController;
 
-public class OrderHandler implements ApiController.IOrderHandler {
+public class OrderHandler implements BaseController.IOrderHandler {
 
     @Override
     public void orderState(OrderState orderState) {
