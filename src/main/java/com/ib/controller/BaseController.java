@@ -711,6 +711,10 @@ public class BaseController implements EWrapper{
     }
 
     @Override public void execDetails(int reqId, Contract contract, Execution execution) {
+
+        System.out.println("ExecDetails. "+reqId+" - ["+contract.symbol()+"], ["+contract.secType()+"], ["+contract.currency()+"], ["+execution.execId()+
+                "], ["+execution.orderId()+"], ["+execution.shares()+"]"  + ", [" + execution.lastLiquidity() + "]");
+
         if (m_tradeReportHandler != null) {
             int i = execution.execId().lastIndexOf( '.');
             String tradeKey = execution.execId().substring( 0, i);
@@ -727,6 +731,9 @@ public class BaseController implements EWrapper{
     }
 
     @Override public void commissionReport(CommissionReport commissionReport) {
+
+        System.out.println("CommissionReport. ["+commissionReport.execId()+"] - ["+commissionReport.commission()+"] ["+commissionReport.currency()+"] RPNL ["+commissionReport.realizedPNL()+"]");
+
         if (m_tradeReportHandler != null) {
             int i = commissionReport.execId().lastIndexOf( '.');
             String tradeKey = commissionReport.execId().substring( 0, i);
@@ -1142,7 +1149,7 @@ public class BaseController implements EWrapper{
         sendEOM();
     }
 
-    protected boolean checkConnection() {
+    public boolean checkConnection() {
         if (!isConnected()) {
             error(EClientErrors.NO_VALID_ID, EClientErrors.NOT_CONNECTED.code(), EClientErrors.NOT_CONNECTED.msg());
             return false;

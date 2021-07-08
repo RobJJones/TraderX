@@ -2,7 +2,7 @@ package org.rjj.ib;
 
 import com.ib.client.ContractDetails;
 import com.ib.client.Order;
-import com.ib.controller.TraderApiController;
+import com.ib.controller.BaseController;
 import org.rjj.ib.handler.AccountHandler;
 import org.rjj.ib.handler.ConnectionHandler;
 import org.rjj.ib.handler.OrderHandler;
@@ -22,7 +22,7 @@ public class TraderInteractiveBrokerProxy implements TraderInteractiveBrokerInte
     public static final int DEFAULT_CONNECTION_RETRY = 5;
     private final Account account;
     private final AccountHandler accountHandler;
-    TraderApiController apiController;
+    BaseController apiController;
     ConnectionHandler connectionHandler = new ConnectionHandler();
     OrderHandler orderHandler = new OrderHandler();
 
@@ -31,7 +31,7 @@ public class TraderInteractiveBrokerProxy implements TraderInteractiveBrokerInte
 
         //Create the connection hander, then the ApiController
         //Bit of a circular dependency going on here, but it's within IBs code
-        apiController = new TraderApiController(connectionHandler, null, null);
+        apiController = new BaseController(connectionHandler, null, null);
         connectionHandler.setController(apiController);
         this.account = account;
         this.accountHandler = accountHandler;
@@ -93,7 +93,7 @@ public class TraderInteractiveBrokerProxy implements TraderInteractiveBrokerInte
         return contractDetails.get(0);
     }
 
-    private void placeBuyOrder(Ticker ticker, String currency) {
+    private void placeBuyOrder(Ticker ticker) {
 
         System.out.printf("Attempting to place buy order %s, %tz, %f",
                 ticker.getSymbol(), ticker.getDateTime(), ticker.getLastPrice());
@@ -102,29 +102,29 @@ public class TraderInteractiveBrokerProxy implements TraderInteractiveBrokerInte
         List<Order> bracketOrder = Util.createBracketOrder(1, ticker.getLastPrice() * 1.1,
                 ticker.getLastPrice() * 0.9);
 
-        apiController.placeOrModifyOrder(Util.getContract(ticker.getSymbol(), currency), bracketOrder);
+        apiController.placeOrModifyOrder(Util.getContract(ticker.getSymbol(), ticker.getCurrency()), bracketOrder);
 
         System.out.printf("Attempting to place buy order %s, %tz, %f",
                 ticker.getSymbol(), ticker.getDateTime(), ticker.getLastPrice());
     }
 
     @Override
-    public void buyStocks(List<Ticker> stockList, String currency)
+    public void buyStocks(List<Ticker> stockList)
             throws BrokerConnectionException {
 
         System.out.println("List of stocks man!");
 
         for (Ticker ticker : stockList) {
-            buyStock(ticker, currency);
+            buyStock(ticker);
         };
     }
 
     @Override
-    public void buyStock(Ticker ticker, String currency) throws BrokerConnectionException {
+    public void buyStock(Ticker ticker) throws BrokerConnectionException {
         System.out.println("List of stocks man!");
 
         if (connect()) {
-            placeBuyOrder(ticker, currency);
+            placeBuyOrder(ticker);
             System.out.println(ticker);
         } else {
             throw new BrokerConnectionException();

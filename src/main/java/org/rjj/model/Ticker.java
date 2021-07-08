@@ -7,6 +7,7 @@ public class Ticker {
     private String symbol;
     private Date dateTime = new Date();
     private double lastPrice;
+    private String currency;
 
     public String getSymbol() {
         return symbol;
@@ -32,6 +33,9 @@ public class Ticker {
         this.lastPrice = lastPrice;
     }
 
+    public String getCurrency() { return currency; }
+
+    public void setCurrency(String currency) { this.currency = currency; }
 
     @Override
     public String toString() {
@@ -39,6 +43,7 @@ public class Ticker {
                 "symbol='" + symbol + '\'' +
                 ", dateTime=" + dateTime +
                 ", lastPrice=" + lastPrice +
+                ", currency='" + currency + '\'' +
                 '}';
     }
 }

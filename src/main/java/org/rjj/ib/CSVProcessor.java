@@ -11,12 +11,14 @@ public class CSVProcessor {
 
     private static final String COMMA = ",";
 
-    public static List<Ticker> processCSVData(String csvData) {
+    public static List<Ticker> processCSVData(String csvData, String currency) {
 
         List<Ticker> inputList = new ArrayList<>();
 
         // skip the header of the csv
         inputList = csvData.lines().skip(1).map(mapToItem).collect(Collectors.toList());
+        //Add currency
+        inputList.forEach(ticker -> ticker.setCurrency(currency));
 
         return inputList ;
     }
