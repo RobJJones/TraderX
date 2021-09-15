@@ -9,6 +9,16 @@ public class Ticker {
     private double lastPrice;
     private String currency;
 
+    public Ticker() {
+        super();
+    }
+
+    public Ticker(String symbol, Date dateTime) {
+        this();
+        this.symbol = symbol;
+        this.dateTime = dateTime;
+    }
+
     public String getSymbol() {
         return symbol;
     }

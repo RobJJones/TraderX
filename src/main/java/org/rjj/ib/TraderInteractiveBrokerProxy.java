@@ -2,7 +2,7 @@ package org.rjj.ib;
 
 import com.ib.client.ContractDetails;
 import com.ib.client.Order;
-import com.ib.controller.BaseController;
+import com.ib.controller.BaseController2;
 import org.rjj.ib.handler.AccountHandler;
 import org.rjj.ib.handler.ConnectionHandler;
 import org.rjj.ib.handler.OrderHandler;
@@ -22,7 +22,7 @@ public class TraderInteractiveBrokerProxy implements TraderInteractiveBrokerInte
     public static final int DEFAULT_CONNECTION_RETRY = 5;
     private final Account account;
     private final AccountHandler accountHandler;
-    BaseController apiController;
+    BaseController2 apiController;
     ConnectionHandler connectionHandler = new ConnectionHandler();
     OrderHandler orderHandler = new OrderHandler();
 
@@ -31,7 +31,7 @@ public class TraderInteractiveBrokerProxy implements TraderInteractiveBrokerInte
 
         //Create the connection hander, then the ApiController
         //Bit of a circular dependency going on here, but it's within IBs code
-        apiController = new BaseController(connectionHandler, null, null);
+        apiController = new BaseController2(connectionHandler, null, null);
         connectionHandler.setController(apiController);
         this.account = account;
         this.accountHandler = accountHandler;

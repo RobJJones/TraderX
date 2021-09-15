@@ -4,14 +4,14 @@ import com.ib.client.Contract;
 import com.ib.client.Order;
 import com.ib.client.OrderState;
 import com.ib.client.OrderStatus;
-import com.ib.controller.BaseController;
+import com.ib.controller.BaseController2;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.Produces;
 
 @ApplicationScoped
 @Produces
-public class LiveOrderHandler implements BaseController.ILiveOrderHandler {
+public class LiveOrderHandler implements BaseController2.ILiveOrderHandler {
 
     @Override
     public void openOrder(Contract contract, Order order, OrderState orderState) {

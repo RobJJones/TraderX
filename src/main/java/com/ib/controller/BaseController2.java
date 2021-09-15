@@ -7,7 +7,7 @@ import org.rjj.ib.handler.OrderHandler;
 import java.io.IOException;
 import java.util.*;
 
-public class BaseController implements EWrapper{
+public class BaseController2 implements EWrapper{
     private ApiConnection m_client;
     private final ApiConnection.ILogger m_outLogger;
     private final ApiConnection.ILogger m_inLogger;
@@ -68,11 +68,11 @@ public class BaseController implements EWrapper{
         void show(String string);
     }
 
-    public BaseController(IConnectionHandler handler) {
+    public BaseController2(IConnectionHandler handler) {
         this(handler, null, null);
     }
 
-    public BaseController(IConnectionHandler handler, ApiConnection.ILogger inLogger, ApiConnection.ILogger outLogger) {
+    public BaseController2(IConnectionHandler handler, ApiConnection.ILogger inLogger, ApiConnection.ILogger outLogger) {
         m_connectionHandler = handler;
         m_client = new ApiConnection( this, inLogger, outLogger);
         m_inLogger = inLogger;

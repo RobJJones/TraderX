@@ -1,6 +1,6 @@
 package org.rjj.model;
 
-import com.ib.controller.BaseController;
+import com.ib.controller.BaseController2;
 import org.rjj.ib.handler.LiveOrderHandler;
 
 import java.math.BigDecimal;
@@ -9,7 +9,7 @@ import java.util.*;
 public abstract class Account {
 
     public BigDecimal totalCashValue;
-    private BaseController.ILiveOrderHandler liveOrderHandler = new LiveOrderHandler();
+    private BaseController2.ILiveOrderHandler liveOrderHandler = new LiveOrderHandler();
     private Map<Integer, List<TimePosition>> portfolio = new HashMap<>();
     private Calendar lastDateSignal = new GregorianCalendar();
 
@@ -20,7 +20,7 @@ public abstract class Account {
     public abstract String getTargetApplication();
 
 
-    public BaseController.ILiveOrderHandler getLiveOrderHandler() {
+    public BaseController2.ILiveOrderHandler getLiveOrderHandler() {
         return liveOrderHandler;
     }
 

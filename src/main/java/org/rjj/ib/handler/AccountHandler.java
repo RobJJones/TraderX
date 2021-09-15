@@ -1,6 +1,6 @@
 package org.rjj.ib.handler;
 
-import com.ib.controller.BaseController;
+import com.ib.controller.BaseController2;
 import com.ib.controller.Position;
 import org.rjj.model.Account;
 import org.rjj.model.TimePosition;
@@ -16,7 +16,7 @@ import java.util.Map;
 
 @ApplicationScoped
 @Produces
-public class AccountHandler implements BaseController.IAccountHandler {
+public class AccountHandler implements BaseController2.IAccountHandler {
 
     private Account account;
 

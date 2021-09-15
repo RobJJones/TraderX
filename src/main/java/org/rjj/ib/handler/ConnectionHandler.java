@@ -1,6 +1,7 @@
+
 package org.rjj.ib.handler;
 
-import com.ib.controller.BaseController;
+import com.ib.controller.BaseController2;
 import com.ib.controller.Formats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,10 +9,10 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConnectionHandler implements BaseController.IConnectionHandler {
+public class ConnectionHandler implements BaseController2.IConnectionHandler {
 
     private Logger LOGGER = LoggerFactory.getLogger(ConnectionHandler.class);
-    private BaseController controller;
+    private BaseController2 controller;
     private List<String> acctList = new ArrayList<>();
 
     @Override
@@ -55,11 +56,11 @@ public class ConnectionHandler implements BaseController.IConnectionHandler {
         LOGGER.info(s);
     }
 
-    public BaseController getController() {
+    public BaseController2 getController() {
         return controller;
     }
 
-    public void setController(BaseController controller) {
+    public void setController(BaseController2 controller) {
         this.controller = controller;
     }
 }

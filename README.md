@@ -1,5 +1,15 @@
 # getting-started project
 
+## Import TWS API
+
+Run the following command to import the TWS API into your local M2 repo
+
+```shell script
+mvn deploy:deploy-file -DgroupId=com.ib -DartifactId=tws-api -Dversion=9.73.01 -Durl=file:./lib/ -DrepositoryId=local-maven-repo -DupdateReleaseInfo=true -Dfile=./lib/tws-api-9.73.01-SNAPSHOT.jar
+```
+
+## Quarkus 
+
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
@@ -8,7 +18,7 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 
 You can run your application in dev mode that enables live coding using:
 ```shell script
-./mvnw compile quarkus:dev
+./mvnw compile quarkus:dev -Dquarkus.profile=paper
 ```
 
 > **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.

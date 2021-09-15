@@ -3,7 +3,7 @@ package org.rjj.ib;
 import com.ib.client.Contract;
 import com.ib.client.ContractDetails;
 import com.ib.client.Order;
-import com.ib.controller.BaseController;
+import com.ib.controller.BaseController2;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -76,13 +76,13 @@ public class Util {
         return bracketOrder;
     }
 
-    public static List<ContractDetails> lookupContract(BaseController controller, Contract contract) {
+    public static List<ContractDetails> lookupContract(BaseController2 controller, Contract contract) {
         if (controller == null) {
             return new ArrayList();
         } else {
             final CompletableFuture<List<ContractDetails>> future = new CompletableFuture();
 
-            controller.reqContractDetails(contract, new BaseController.IContractDetailsHandler() {
+            controller.reqContractDetails(contract, new BaseController2.IContractDetailsHandler() {
                 private final List<ContractDetails> contractDetails = new ArrayList();
 
                 public void contractDetails(List<ContractDetails> list) {
