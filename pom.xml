@@ -84,6 +84,11 @@
       <artifactId>quarkus-scheduler</artifactId>
       <version>1.13.3.Final</version>
     </dependency>
+    <dependency>
+      <groupId>com.opencsv</groupId>
+      <artifactId>opencsv</artifactId>
+      <version>5.5</version>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

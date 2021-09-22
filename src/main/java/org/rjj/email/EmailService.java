@@ -3,7 +3,7 @@ package org.rjj.email;
 import com.sun.mail.imap.IMAPFolder;
 import io.quarkus.scheduler.Scheduled;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.rjj.data.TickerDataRetrieval;
+import org.rjj.evaluate.TickerDataRetrieval;
 import org.rjj.ib.TraderInteractiveBrokerProxy;
 import org.rjj.ib.handler.ConnectionHandler;
 import org.rjj.model.Ticker;
@@ -46,11 +46,13 @@ public class EmailService {
     @Inject
     TickerDataRetrieval tickerDataRetrieval;
 
-    @Scheduled(every="10s")
+    @Scheduled(every = "10s")
     void evaluateEmailAlert() {
 
         final long currentTimeMillisStart = System.currentTimeMillis();
         List<Ticker> tickerList = this.extractAlertIndicatorsFromEmails(true);
+
+        tickerDataRetrieval.executeTickersDataExtract(tickerList);
 
         ConnectionHandler connectionHandler = new ConnectionHandler();
         //TraderApiController apiController = new TraderApiController(connectionHandler, null, null);
@@ -60,7 +62,7 @@ public class EmailService {
 
         //tickerDataRetrieval.executeTickersDataExtract(tickers);
 
-        System.out.println((System.currentTimeMillis()-currentTimeMillisStart)/1000);
+        System.out.println((System.currentTimeMillis() - currentTimeMillisStart) / 1000);
 
         /*Ticker ticker = new Ticker();
         ticker.setCurrency("GDP");
@@ -103,11 +105,11 @@ public class EmailService {
 
             System.out.println("done!");
 
-//            ReceivedDateTerm today = new ReceivedDateTerm(ComparisonTerm.EQ,
-//                    new GregorianCalendar(2021, Calendar.AUGUST, 6).getTime());
-
             ReceivedDateTerm today = new ReceivedDateTerm(ComparisonTerm.EQ,
-                    new Date());
+                    new GregorianCalendar(2021, Calendar.AUGUST, 17).getTime());
+
+//            ReceivedDateTerm today = new ReceivedDateTerm(ComparisonTerm.EQ,
+//                    new Date());
 
             Flags seen = new Flags(Flags.Flag.SEEN);
             FlagTerm unseenFlagTerm = new FlagTerm(seen, false);
@@ -129,7 +131,7 @@ public class EmailService {
 
                 message.setFlag(Flags.Flag.SEEN, true);
                 final String content = message.getContent().toString();
-                
+
                 if (withinTradingHours(message)) {
 
                     System.out.println("Title: " + message.getSubject());
@@ -144,23 +146,19 @@ public class EmailService {
                     tickers.addAll(messageTickers);
 
                 } else {
-                    System.out.println(content + " outside trading hours ..."+message.getSentDate());
+                    System.out.println(content + " outside trading hours ..." + message.getSentDate());
                 }
 
             }
 
             tickers.forEach(System.out::println);
 
-            System.out.println("Time take - " + (System.currentTimeMillis()-timeMillisStart));
+            System.out.println("Time take - " + (System.currentTimeMillis() - timeMillisStart));
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Ticker ticker = new Ticker();
-        ticker.setCurrency("GDP");
-        ticker.setSymbol("LLOY");
-        tickers.add(ticker);
         return tickers;
     }
 
@@ -184,9 +182,9 @@ public class EmailService {
                     .filter(aLine -> aLine.contains(exchangeSymbol))
                     .findFirst()
                     .orElse(null);
-        }).filter(aString -> aString!=null)
-          .findFirst()
-          .orElse("");
+        }).filter(aString -> aString != null)
+                .findFirst()
+                .orElse("");
     }
 
     private Function<String, Ticker> createTicker(Message message) {
@@ -202,13 +200,13 @@ public class EmailService {
 
     private boolean withinTradingHours(Message message) throws MessagingException {
 
-        return  ((message.getSubject().toLowerCase().contains("uk")&&
-                getLocalTime(message.getSentDate()).isBefore(cutoffTimeUK))||
-                (message.getSubject().toLowerCase().contains("america")&&
+        return ((message.getSubject().toLowerCase().contains("uk") &&
+                getLocalTime(message.getSentDate()).isBefore(cutoffTimeUK)) ||
+                (message.getSubject().toLowerCase().contains("america") &&
                         getLocalTime(message.getSentDate()).isBefore(cutoffTimeAmerica)));
     }
 
-    private LocalTime getLocalTime(Date date)  {
+    private LocalTime getLocalTime(Date date) {
         return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).toLocalTime();
     }
 }
