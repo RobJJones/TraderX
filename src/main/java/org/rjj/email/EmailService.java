@@ -50,7 +50,7 @@ public class EmailService {
     void evaluateEmailAlert() {
 
         final long currentTimeMillisStart = System.currentTimeMillis();
-        List<Ticker> tickerList = this.extractAlertIndicatorsFromEmails(true);
+        List<Ticker> tickerList = extractAlertIndicatorsFromEmails(true);
 
         tickerDataRetrieval.executeTickersDataExtract(tickerList);
 
@@ -58,11 +58,11 @@ public class EmailService {
         //TraderApiController apiController = new TraderApiController(connectionHandler, null, null);
         //connectionHandler.setController(apiController);
 
-        String[] tickers = new String[]{"LSE:RR.", "NYSE:TV"};
+        //String[] tickers = new String[]{"LSE:RR.", "NYSE:TV"};
 
         //tickerDataRetrieval.executeTickersDataExtract(tickers);
 
-        System.out.println((System.currentTimeMillis() - currentTimeMillisStart) / 1000);
+        //System.out.println((System.currentTimeMillis() - currentTimeMillisStart) / 1000);
 
         /*Ticker ticker = new Ticker();
         ticker.setCurrency("GDP");
@@ -93,8 +93,8 @@ public class EmailService {
         Session session = Session.getDefaultInstance(connectionProperties, null);
 
         try {
-            System.out.print("Connecting to the IMAP server...");
-            System.out.print("Searching from ");
+            //System.out.print("Connecting to the IMAP server...");
+            //System.out.print("Searching from ");
             // Connecting to the server
             // Set the store depending on the parameter flag value
             String storeName = isImap ? "imaps" : "pop3";
@@ -103,13 +103,13 @@ public class EmailService {
             String server = isImap ? imapServer : pop3Server;
             store.connect(server, username, password);
 
-            System.out.println("done!");
-
-            ReceivedDateTerm today = new ReceivedDateTerm(ComparisonTerm.EQ,
-                    new GregorianCalendar(2021, Calendar.AUGUST, 17).getTime());
+            //System.out.println("done!");
 
 //            ReceivedDateTerm today = new ReceivedDateTerm(ComparisonTerm.EQ,
-//                    new Date());
+//                    new GregorianCalendar(2021, Calendar.SEPTEMBER, 24).getTime());
+
+            ReceivedDateTerm today = new ReceivedDateTerm(ComparisonTerm.EQ,
+                    new Date());
 
             Flags seen = new Flags(Flags.Flag.SEEN);
             FlagTerm unseenFlagTerm = new FlagTerm(seen, false);
@@ -122,24 +122,23 @@ public class EmailService {
 
             // Get messages
             Message messages[] = inboxFolder.search(searchTerm);
-            System.out.println("Reading messages...");
 
             // Display the messages
             for (Message message : messages) {
                 for (Address a : message.getFrom())
-                    System.out.println("From:" + a);
+                    //System.out.println("From:" + a);
 
                 message.setFlag(Flags.Flag.SEEN, true);
                 final String content = message.getContent().toString();
 
                 if (withinTradingHours(message)) {
 
-                    System.out.println("Title: " + message.getSubject());
-                    System.out.println();
-                    System.out.printf("Date: %tF %<tT %n", message.getReceivedDate());
-                    System.out.printf("Date: %tF %<tT %n", message.getSentDate());
-                    System.out.println(content);
-                    System.out.println("---");
+//                    System.out.println("Title: " + message.getSubject());
+//                    System.out.println();
+//                    System.out.printf("Date: %tF %<tT %n", message.getReceivedDate());
+//                    System.out.printf("Date: %tF %<tT %n", message.getSentDate());
+//                    System.out.println(content);
+//                    System.out.println("---");
 
                     final Date sentDate = message.getSentDate();
                     final List<Ticker> messageTickers = getMessageTickers(message);
@@ -153,7 +152,7 @@ public class EmailService {
 
             tickers.forEach(System.out::println);
 
-            System.out.println("Time take - " + (System.currentTimeMillis() - timeMillisStart));
+            //System.out.println("Time take - " + (System.currentTimeMillis() - timeMillisStart));
 
         } catch (Exception e) {
             e.printStackTrace();
