@@ -1,22 +1,27 @@
 package org.rjj.email;
 
+import com.google.gson.Gson;
 import com.sun.mail.imap.IMAPFolder;
 import io.quarkus.scheduler.Scheduled;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.rjj.evaluate.TickerDataRetrieval;
-import org.rjj.ib.TraderInteractiveBrokerProxy;
-import org.rjj.ib.handler.ConnectionHandler;
-import org.rjj.model.Ticker;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.rjj.model.MovingAverageTicker;
+import org.rjj.model.OversoldTicker;
+import org.rjj.purchase.TradingService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.mail.*;
+import javax.mail.internet.MimeMultipart;
 import javax.mail.search.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -41,40 +46,15 @@ public class EmailService {
     private LocalTime cutoffTimeAmerica;
 
     @Inject
-    TraderInteractiveBrokerProxy interactiveBrokerInterface;
-
-    @Inject
-    TickerDataRetrieval tickerDataRetrieval;
+    @RestClient
+    private TradingService tradingService;
 
     @Scheduled(every = "10s")
     void evaluateEmailAlert() {
-
         final long currentTimeMillisStart = System.currentTimeMillis();
-        List<Ticker> tickerList = extractAlertIndicatorsFromEmails(true);
+        MovingAverageTicker ticker = extractAlertIndicatorsFromEmails(true);
 
-        tickerDataRetrieval.executeTickersDataExtract(tickerList);
-
-        ConnectionHandler connectionHandler = new ConnectionHandler();
-        //TraderApiController apiController = new TraderApiController(connectionHandler, null, null);
-        //connectionHandler.setController(apiController);
-
-        //String[] tickers = new String[]{"LSE:RR.", "NYSE:TV"};
-
-        //tickerDataRetrieval.executeTickersDataExtract(tickers);
-
-        //System.out.println((System.currentTimeMillis() - currentTimeMillisStart) / 1000);
-
-        /*Ticker ticker = new Ticker();
-        ticker.setCurrency("GDP");
-        ticker.setSymbol("LLOY");
-        tickerList.add(ticker);*/
-        try {
-            //apiController.checkConnection();
-        } catch (Exception e) {    //BrokerConnectionException e) {
-
-            //TODO - Do something ??? Send email with buy failure??
-            e.printStackTrace();
-        }
+        if (ticker!=null) tradingService.purchaseStock(ticker);
     }
 
     /**
@@ -82,11 +62,11 @@ public class EmailService {
      *
      * @param isImap - if true then we are reading messages from the IMAP server, if no then read from the POP3 server.
      */
-    private List<Ticker> extractAlertIndicatorsFromEmails(boolean isImap) {
+    private MovingAverageTicker extractAlertIndicatorsFromEmails(boolean isImap) {
 
         long timeMillisStart = System.currentTimeMillis();
 
-        ArrayList<Ticker> tickers = new ArrayList<>();
+        MovingAverageTicker messageTicker = null;
         // Create all the needed properties - empty!
         Properties connectionProperties = new Properties();
         // Create the session
@@ -103,10 +83,8 @@ public class EmailService {
             String server = isImap ? imapServer : pop3Server;
             store.connect(server, username, password);
 
-            //System.out.println("done!");
-
 //            ReceivedDateTerm today = new ReceivedDateTerm(ComparisonTerm.EQ,
-//                    new GregorianCalendar(2021, Calendar.SEPTEMBER, 24).getTime());
+//                    new GregorianCalendar(2021, Calendar.DECEMBER, 1).getTime());
 
             ReceivedDateTerm today = new ReceivedDateTerm(ComparisonTerm.EQ,
                     new Date());
@@ -131,18 +109,18 @@ public class EmailService {
                 message.setFlag(Flags.Flag.SEEN, true);
                 final String content = message.getContent().toString();
 
-                if (withinTradingHours(message)) {
-
-//                    System.out.println("Title: " + message.getSubject());
+ //               if (withinTradingHours(message)) {
+                if (true) {
+                    System.out.println("Title: " + message.getSubject());
 //                    System.out.println();
 //                    System.out.printf("Date: %tF %<tT %n", message.getReceivedDate());
 //                    System.out.printf("Date: %tF %<tT %n", message.getSentDate());
-//                    System.out.println(content);
+                    System.out.println("ContentType: "+message.getContentType());
+
 //                    System.out.println("---");
 
                     final Date sentDate = message.getSentDate();
-                    final List<Ticker> messageTickers = getMessageTickers(message);
-                    tickers.addAll(messageTickers);
+                    messageTicker = getTickerFromMessageJSON(message);
 
                 } else {
                     System.out.println(content + " outside trading hours ..." + message.getSentDate());
@@ -150,29 +128,40 @@ public class EmailService {
 
             }
 
-            tickers.forEach(System.out::println);
-
             //System.out.println("Time take - " + (System.currentTimeMillis() - timeMillisStart));
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return tickers;
+        return messageTicker;
     }
 
-    private List<Ticker> getMessageTickers(Message message) throws IOException, MessagingException {
+    private MovingAverageTicker getTickerFromMessageJSON(Message message) throws IOException, MessagingException {
+
+        Gson gson = new Gson();
+        final MovingAverageTicker ticker = gson.fromJson(getTextFromMessage(message), MovingAverageTicker.class);
+
+        System.out.println(ticker);
+        return ticker;
+    }
+
+    private List<OversoldTicker> getMessageTickersFromCommaSeperated(Message message) throws IOException, MessagingException {
         return Arrays.stream(getTickersLine(message.getContent().toString())
                 .split(", "))
                 .filter(aString -> !aString.isBlank())
                 .map(ticker -> {
                     try {
-                        return new Ticker(ticker, message.getSentDate());
+                        return new OversoldTicker(ticker, message.getSentDate(), extractFilter(message));
                     } catch (MessagingException e) {
                         e.printStackTrace();
                     }
                     return null;
                 }).collect(Collectors.toList());
+    }
+
+    public OversoldTicker.AlertFilter extractFilter(Message message) throws MessagingException {
+        return OversoldTicker.AlertFilter.lookupFilter(message.getSubject());
     }
 
     private String getTickersLine(String content) throws IOException, MessagingException {
@@ -186,10 +175,10 @@ public class EmailService {
                 .orElse("");
     }
 
-    private Function<String, Ticker> createTicker(Message message) {
+    private Function<String, OversoldTicker> createTicker(Message message) {
         return tickerString -> {
             try {
-                return new Ticker(tickerString, message.getSentDate());
+                return new OversoldTicker(tickerString, message.getSentDate(), extractFilter(message));
             } catch (MessagingException e) {
                 e.printStackTrace();
             }
@@ -207,5 +196,35 @@ public class EmailService {
 
     private LocalTime getLocalTime(Date date) {
         return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault()).toLocalTime();
+    }
+
+    private String getTextFromMessage(Message message) throws MessagingException, IOException {
+        String result = "";
+        if (message.isMimeType("text/plain")) {
+            result = message.getContent().toString();
+        } else if (message.isMimeType("multipart/*")) {
+            MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
+            result = getTextFromMimeMultipart(mimeMultipart);
+        }
+        return result;
+    }
+
+    private String getTextFromMimeMultipart(
+            MimeMultipart mimeMultipart)  throws MessagingException, IOException{
+        String result = "";
+        int count = mimeMultipart.getCount();
+        for (int i = 0; i < count; i++) {
+            BodyPart bodyPart = mimeMultipart.getBodyPart(i);
+            if (bodyPart.isMimeType("text/plain")) {
+                result = result + "\n" + bodyPart.getContent();
+                break; // without break same text appears twice in my tests
+            } else if (bodyPart.isMimeType("text/html")) {
+                String html = (String) bodyPart.getContent();
+                result = result + "\n" + org.jsoup.Jsoup.parse(html).text();
+            } else if (bodyPart.getContent() instanceof MimeMultipart){
+                result = result + getTextFromMimeMultipart((MimeMultipart)bodyPart.getContent());
+            }
+        }
+        return result;
     }
 }

@@ -9,6 +9,7 @@ import weka.core.converters.ArffLoader;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.io.File;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -117,8 +118,10 @@ public class DecisionEngine {
     }
 
     private void loadModel() throws Exception {
-        final String path = DecisionEngine.class.getClassLoader().getResource("costSensitiveRandomTree.model").getPath();
-        model = (CostSensitiveClassifier) SerializationHelper.read(path);
+
+        final InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("costSensitiveRandomTree.model");
+
+        model = (CostSensitiveClassifier) SerializationHelper.read(resourceAsStream);
         System.out.println(model.getClass().getName() + " loaded.");
     }
 }

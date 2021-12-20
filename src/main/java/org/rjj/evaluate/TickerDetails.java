@@ -3,6 +3,7 @@ package org.rjj.evaluate;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvCustomBindByName;
 import com.opencsv.bean.CsvDate;
+import org.bson.codecs.pojo.annotations.BsonIgnore;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -175,6 +176,7 @@ public class TickerDetails {
         return keltnerUpper;
     }
 
+    @BsonIgnore
     public BigDecimal getKeltnerUpperPercentage() {
         return keltnerUpper.divide(getClose(),8, RoundingMode.HALF_UP)
                 .multiply(HUNDRED)
@@ -189,6 +191,7 @@ public class TickerDetails {
         return keltnerBasis;
     }
 
+    @BsonIgnore
     public BigDecimal getKeltnerBasisPercentage() {
         return keltnerBasis.divide(getClose(),8, RoundingMode.HALF_UP)
                 .multiply(HUNDRED)
@@ -203,6 +206,7 @@ public class TickerDetails {
         return keltnerLower;
     }
 
+    @BsonIgnore
     public BigDecimal getKeltnerLowerPercentage() {
         return keltnerLower.divide(getClose(),8, RoundingMode.HALF_UP)
                 .multiply(HUNDRED)
@@ -217,6 +221,7 @@ public class TickerDetails {
         return vwma;
     }
 
+    @BsonIgnore
     public BigDecimal getVwmaPercentage() {
         return vwma.divide(getClose(),8, RoundingMode.HALF_UP)
                 .multiply(HUNDRED)
@@ -231,6 +236,7 @@ public class TickerDetails {
         return ema200;
     }
 
+    @BsonIgnore
     public BigDecimal getEma200Percentage() {
         return ema200.divide(getClose(),8, RoundingMode.HALF_UP)
                 .multiply(HUNDRED)
@@ -245,6 +251,7 @@ public class TickerDetails {
         return vwap;
     }
 
+    @BsonIgnore
     public BigDecimal getVwapPercentage() {
         return vwap.divide(getClose(),8, RoundingMode.HALF_UP)
                 .multiply(HUNDRED)
@@ -259,6 +266,7 @@ public class TickerDetails {
         return vwapUpperBand;
     }
 
+    @BsonIgnore
     public BigDecimal getVwapUpperBandPercentage() {
         return vwapUpperBand.divide(getClose(),8, RoundingMode.HALF_UP)
                 .multiply(HUNDRED)
@@ -273,6 +281,7 @@ public class TickerDetails {
         return vwapLowerBand;
     }
 
+    @BsonIgnore
     public BigDecimal getVwapLowerBandPercentage() {
         return vwapLowerBand.divide(getClose(),8, RoundingMode.HALF_UP)
                 .multiply(HUNDRED)
