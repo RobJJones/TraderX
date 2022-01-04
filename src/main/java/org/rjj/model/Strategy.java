@@ -41,6 +41,12 @@ public class Strategy {
     @SerializedName("totalClosedTrades")
     @Expose
     private int totalClosedTrades;
+    @SerializedName("vwapOn")
+    @Expose
+    public boolean vwapOn;
+    @SerializedName("vwapSource")
+    @Expose
+    public String vwapSource;
 
     /**
      * No args constructor for use in serialization
@@ -50,20 +56,23 @@ public class Strategy {
     }
 
     public Strategy(String type, int movingAverageShortPeriod, int movingAverageLongPeriod, String movingAverageInput,
-                    String movingAverageSource, int averageBarsInTrade, int averagePercentage, int averageTradePerDay, int averageTrade,
-                    int profitFactor, int maximumDrawdown, int totalClosedTrades) {
+                    String movingAverageSource, int averageBarsInTrade, double percentageProfitable,
+                    double averageTradePerDay, double averageTrade, double profitFactor, double maximumDrawdown,
+                    int totalClosedTrades, boolean vwapOn, String vwapSource) {
         this.type = type;
         this.movingAverageShortPeriod = movingAverageShortPeriod;
         this.movingAverageLongPeriod = movingAverageLongPeriod;
         this.movingAverageInput = movingAverageInput;
         this.movingAverageSource = movingAverageSource;
         this.averageBarsInTrade = averageBarsInTrade;
-        this.percentageProfitable = averagePercentage;
+        this.percentageProfitable = percentageProfitable;
         this.averageTradePerDay = averageTradePerDay;
         this.averageTrade = averageTrade;
         this.profitFactor = profitFactor;
         this.maximumDrawdown = maximumDrawdown;
         this.totalClosedTrades = totalClosedTrades;
+        this.vwapOn = vwapOn;
+        this.vwapSource = vwapSource;
     }
 
     public String getType() {
@@ -162,6 +171,35 @@ public class Strategy {
         this.totalClosedTrades = totalClosedTrades;
     }
 
+    public boolean isVwapOn() {
+        return vwapOn;
+    }
+
+    public void setVwapOn(boolean vwapOn) {
+        this.vwapOn = vwapOn;
+    }
+
+    public String getVwapSource() {
+        return vwapSource;
+    }
+
+    public void setVwapSource(String vwapSource) {
+        this.vwapSource = vwapSource;
+    }
+
+    @Override
+    public Object clone()  {
+        try {
+            return (Strategy) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return new Strategy(this.getType(), this.getMovingAverageShortPeriod(), this.getMovingAverageLongPeriod(),
+                    this.getMovingAverageInput(), this.getMovingAverageSource(), this.getAverageBarsInTrade(),
+                    this.getPercentageProfitable(), this.getAverageTradePerDay(), this.getAverageTrade(),
+                    this.getProfitFactor(), this.getMaximumDrawdown(), this.getTotalClosedTrades(),
+                    this.isVwapOn(), this.getVwapSource());
+        }
+    }
+
     @Override
     public String toString() {
         return "Strategy{" +
@@ -177,6 +215,8 @@ public class Strategy {
                 ", profitFactor=" + profitFactor +
                 ", maximumDrawdown=" + maximumDrawdown +
                 ", totalClosedTrades=" + totalClosedTrades +
+                ", vwapOn=" + vwapOn +
+                ", vwapSource='" + vwapSource + '\'' +
                 '}';
     }
 }

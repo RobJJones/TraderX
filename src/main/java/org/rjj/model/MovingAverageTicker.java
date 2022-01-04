@@ -34,12 +34,26 @@ public class MovingAverageTicker {
     @Expose
     @Valid
     private Strategy strategy;
+    @SerializedName("algo")
+    @Expose
+    @Valid
+    private String AlgString;
 
     /**
      * No args constructor for use in serialization
      *
      */
     public MovingAverageTicker() {
+    }
+
+    public MovingAverageTicker(String ticker, double closePrice, double stopPercent, double takeProfitPercent, String time, double openPrice, double minTicks) {
+        this.ticker = ticker;
+        this.closePrice = closePrice;
+        this.stopPercent = stopPercent;
+        this.takeProfitPercent = takeProfitPercent;
+        this.time = time;
+        this.openPrice = openPrice;
+        this.minTicks = minTicks;
     }
 
     /**
@@ -125,6 +139,21 @@ public class MovingAverageTicker {
     public double getMinTicks() {return minTicks;}
 
     public void setMinTicks(double minTicks) {this.minTicks = minTicks;}
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+
+        MovingAverageTicker ticker = null;
+        try {
+            ticker = (MovingAverageTicker) super.clone();
+        } catch (CloneNotSupportedException e) {
+            ticker = new MovingAverageTicker(
+                    this.getTicker(), this.getClosePrice(), this.getStopPercent(), this.getTakeProfitPercent(),
+                    this.getTime(), this.getOpenPrice(), this.getMinTicks());
+        }
+        ticker.strategy = (Strategy) this.strategy.clone();
+        return ticker;
+    }
 
     @Override
     public String toString() {
